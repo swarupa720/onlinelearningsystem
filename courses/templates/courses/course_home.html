@@ -1,0 +1,22 @@
+{% load custom_tags %}
+<h2>Course: {{ course.title }}</h2>
+
+<ul>
+  {% for lesson in lessons %}
+    <li>
+      <a href="{% url 'lesson-detail' lesson.id %}">{{ lesson.title }}</a>
+
+      {% if completed_lessons|id_in_list:lesson.id %}
+        ✅ Completed
+      {% else %}
+        ❌ Incomplete
+      {% endif %}
+    </li>
+  {% endfor %}
+</ul>
+
+<!-- Show overall progress -->
+<p><strong>Progress:</strong> {{ progress_percent }}%</p>
+<div style="width: 100%; background-color: #ddd; height: 20px;">
+    <div style="width: {{ progress_percent }}%; height: 100%; background-color: green;"></div>
+</div>

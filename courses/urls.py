@@ -1,9 +1,10 @@
 from django.urls import path
-from django.http import HttpResponse
-
-def home(request):
-    return HttpResponse("Courses App Home Page")
+from . import views  # Import views from this app
 
 urlpatterns = [
-    path('', home),
+    # Temporary home page
+    path('', views.home, name='courses-home'),
+    path('lesson/<int:lesson_id>/', views.lesson_detail, name='lesson-detail'),
+    path('lesson/<int:lesson_id>/quiz/', views.quiz_view, name='quiz_view'),
+    path('lesson/<int:lesson_id>/quiz/submit/', views.quiz_submit, name='quiz_submit'),
 ]
