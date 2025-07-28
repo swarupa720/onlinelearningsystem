@@ -1,0 +1,16 @@
+<h2>Quiz Results: {{ lesson.title }}</h2>
+<p><strong>Score: {{ score }} / {{ total }}</strong></p>
+<hr>
+
+{% for result in results %}
+    <p><strong>{{ result.question }}</strong></p>
+    <p>Your Answer: {{ result.selected|default:"Not answered" }}</p>
+    <p>Correct Answer: {{ result.correct }}</p>
+
+    {% if result.is_correct %}
+        <p style="color: green;">✅ Correct</p>
+    {% else %}
+        <p style="color: red;">❌ Wrong</p>
+    {% endif %}
+    <hr>
+{% endfor %}
