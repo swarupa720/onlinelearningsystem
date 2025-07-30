@@ -8,25 +8,24 @@
 <body>
     <h1>{{ lesson.title }}</h1>
 
-    <!-- Debugging: Check the number of questions -->
     <p>Number of questions: {{ questions|length }}</p>
-
-    <!-- Display questions -->
-    {% for question in questions %}
-        <fieldset>
-            <legend><strong>{{ question.question_text }}</strong></legend>
-            <label><input type="radio" name="q{{ question.id }}" value="A"> {{ question.option_a }}</label><br />
-            <label><input type="radio" name="q{{ question.id }}" value="B"> {{ question.option_b }}</label><br />
-            <label><input type="radio" name="q{{ question.id }}" value="C"> {{ question.option_c }}</label><br />
-            <label><input type="radio" name="q{{ question.id }}" value="D"> {{ question.option_d }}</label><br />
-        </fieldset>
-        <hr />
-    {% empty %}
-        <p>No questions available for this lesson.</p>
-    {% endfor %}
 
     <form method="POST" action="{% url 'courses:quiz-submit' lesson.id %}">
         {% csrf_token %}
+
+        {% for question in questions %}
+            <fieldset>
+                <legend><strong>{{ question.question_text }}</strong></legend>
+                <label><input type="radio" name="q{{ question.id }}" value="A"> {{ question.option_a }}</label><br />
+                <label><input type="radio" name="q{{ question.id }}" value="B"> {{ question.option_b }}</label><br />
+                <label><input type="radio" name="q{{ question.id }}" value="C"> {{ question.option_c }}</label><br />
+                <label><input type="radio" name="q{{ question.id }}" value="D"> {{ question.option_d }}</label><br />
+            </fieldset>
+            <hr />
+        {% empty %}
+            <p>No questions available for this lesson.</p>
+        {% endfor %}
+
         <p id="notification" style="color: red; display: none;">
             ⚠️ Please answer all questions before submitting.
         </p>
@@ -56,9 +55,8 @@
             }
 
             form.addEventListener('change', validateAllAnswered);
-            validateAllAnswered();  // Run on page load
+            validateAllAnswered();
         });
     </script>
-
 </body>
 </html>

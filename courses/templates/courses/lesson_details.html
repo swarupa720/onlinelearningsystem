@@ -1,0 +1,68 @@
+{% load custom_tags %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ lesson.title }}</title>
+</head>
+<body>
+    <h2>{{ lesson.title }}</h2>
+
+    <!-- ✅ Progress Bar -->
+    <div style="margin-bottom: 20px;">
+        <label><strong>Course Progress:</strong> {{ progress_percent }}%</label>
+        <div style="width: 100%; background-color: #e0e0e0; height: 20px; border-radius: 10px;">
+            <div style="width: {{ progress_percent }}%; background-color: #4CAF50; height: 100%; border-radius: 10px;"></div>
+        </div>
+    </div>
+
+    <!-- ✅ Embedded YouTube Video -->
+    <iframe
+        id="lesson-video"
+        width="560"
+        height="315"
+        src="{{ lesson.video_url|youtube_embed }}?enablejsapi=1"
+        frameborder="0"
+        allowfullscreen
+    ></iframe>
+
+    <!-- 🔒 Locked Quiz Button initially -->
+    <div style="margin-top: 20px;">
+        <button id="quiz-button" disabled style="opacity: 0.6; cursor: not-allowed;">
+            🔒 Quiz Locked – Watch full video
+        </button>
+    </div>
+
+    <!-- ✅ YouTube Iframe API + Unlock Logic -->
+    <script>
+        // Load YouTube Iframe API
+        const tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        document.body.appendChild(tag);
+
+        let player;
+
+        function onYouTubeIframeAPIReady() {
+            player = new YT.Player('lesson-video', {
+                events: {
+                    'onStateChange': onPlayerStateChange
+                }
+            });
+        }
+
+        function onPlayerStateChange(event) {
+            // 0 means video ended
+            if (event.data === 0) {
+                var button = document.getElementById("quiz-button");
+                button.disabled = false;
+                button.style.opacity = 1;
+                button.style.cursor = "pointer";
+
+                // ✅ Update button to act as link
+                button.addEventListener('click', function () {
+                    window.location.href = "{% url 'quiz_view' lesson.id %}";
+                });
+            }
+        }
+    </script>
+</body>
+</html>

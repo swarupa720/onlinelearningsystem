@@ -3,7 +3,7 @@ from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 from .models import Course, Lesson, Quiz, UserProgress
 
-# ✅ Home View (optional)
+# Optional Home View
 def home(request):
     return HttpResponse("Courses App Home Page")
 
@@ -12,7 +12,7 @@ def course_list(request):
     courses = Course.objects.all()
     return render(request, 'courses/course_list.html', {'courses': courses})
 
-# ✅ Course Detail View
+# ✅ Course Detail View – shows lessons, completed ones, and progress
 @login_required
 def course_detail(request, course_id):
     course = get_object_or_404(Course, id=course_id)
@@ -46,7 +46,6 @@ def lesson_detail(request, lesson_id):
 
     lesson_ids = list(lessons.values_list('id', flat=True))
     current_index = lesson_ids.index(lesson.id)
-
     next_lesson = lessons[current_index + 1] if current_index + 1 < len(lesson_ids) else None
 
     total = lessons.count()
@@ -94,14 +93,14 @@ def quiz_submit(request, lesson_id):
                 'is_correct': is_correct,
             })
 
-        # Mark lesson as completed
+        # ✅ Mark lesson as completed
         UserProgress.objects.update_or_create(
             user=request.user,
             lesson=lesson,
             defaults={'completed': True}
         )
 
-        # Determine next lesson
+        # ✅ Find next lesson
         lessons = Lesson.objects.filter(course=lesson.course).order_by('id')
         lesson_ids = list(lessons.values_list('id', flat=True))
         current_index = lesson_ids.index(lesson.id)
