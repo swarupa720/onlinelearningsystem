@@ -36,6 +36,13 @@ class Quiz(models.Model):
     option_c = models.CharField(max_length=100)
     option_d = models.CharField(max_length=100)
     correct_option = models.CharField(max_length=1)  # A, B, C, D
+class CompletedQuiz(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    lesson = models.ForeignKey('Lesson', on_delete=models.CASCADE)
+    completed_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'lesson')
 
     def __str__(self):
-        return f"Quiz for {self.lesson.title}"
+      return f"{self.user.username} - {self.lesson.title}"

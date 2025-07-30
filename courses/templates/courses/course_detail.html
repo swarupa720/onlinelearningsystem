@@ -1,0 +1,32 @@
+{% load custom_tags %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ course.title }}</title>
+</head>
+<body>
+    <h1>{{ course.title }}</h1>
+    <p>Total Lessons: {{ total }}</p>
+    <p>Completed Lessons: {{ completed }}</p>
+    <p>Progress: {{ progress_percent }}%</p>
+
+    <!-- Progress bar -->
+    <div style="width: 100%; background-color: #ddd; height: 20px;">
+        <div style="width: {{ progress_percent }}%; height: 100%; background-color: green;"></div>
+    </div>
+
+    <!-- Lesson list -->
+    <ul>
+      {% for lesson in lessons %}
+        <li>
+          <a href="{% url 'courses:lesson-detail' lesson.id %}">{{ lesson.title }}</a>
+          {% if lesson.id|id_in_list:completed_ids %}
+            ✅ Completed
+          {% else %}
+            ❌ Incomplete
+          {% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+</body>
+</html>

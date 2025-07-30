@@ -1,16 +1,37 @@
-<h2>Quiz Results: {{ lesson.title }}</h2>
-<p><strong>Score: {{ score }} / {{ total }}</strong></p>
-<hr>
-
-{% for result in results %}
-    <p><strong>{{ result.question }}</strong></p>
-    <p>Your Answer: {{ result.selected|default:"Not answered" }}</p>
-    <p>Correct Answer: {{ result.correct }}</p>
-
-    {% if result.is_correct %}
-        <p style="color: green;">✅ Correct</p>
-    {% else %}
-        <p style="color: red;">❌ Wrong</p>
-    {% endif %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Quiz Results - {{ lesson.title }}</title>
+</head>
+<body>
+    <h2>Quiz Results: {{ lesson.title }}</h2>
+    <p><strong>Score: {{ score }} / {{ total }}</strong></p>
     <hr>
-{% endfor %}
+
+    {% for result in results %}
+        <p><strong>{{ result.question }}</strong></p>
+        <p>Your Answer: {{ result.selected|default:"Not answered" }}</p>
+        <p>Correct Answer: {{ result.correct }}</p>
+
+        {% if result.is_correct %}
+            <p style="color: green;">✅ Correct</p>
+        {% else %}
+            <p style="color: red;">❌ Wrong</p>
+        {% endif %}
+        <hr>
+    {% endfor %}
+
+    <!-- ✅ Next Lesson Button -->
+    {% if next_lesson %}
+        <div style="margin-top: 30px;">
+            <a href="{% url 'courses:lesson-detail' next_lesson.id %}">
+                <button style="padding: 12px 24px; background-color: #4CAF50; color: white; border: none; border-radius: 5px; font-size: 16px; cursor: pointer;">
+                    ▶️ Continue to Next Lesson: {{ next_lesson.title }}
+                </button>
+            </a>
+        </div>
+    {% endif %}
+</body>
+</html>

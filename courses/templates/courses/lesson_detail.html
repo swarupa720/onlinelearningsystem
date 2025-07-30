@@ -7,7 +7,7 @@
 <body>
     <h2>{{ lesson.title }}</h2>
 
-    <!-- ✅ Progress Bar -->
+    <!-- Progress Bar -->
     <div style="margin-bottom: 20px;">
         <label><strong>Course Progress:</strong> {{ progress_percent }}%</label>
         <div style="width: 100%; background-color: #e0e0e0; height: 20px; border-radius: 10px;">
@@ -15,7 +15,7 @@
         </div>
     </div>
 
-    <!-- ✅ Embedded YouTube Video -->
+    <!-- Embedded YouTube Video -->
     <iframe
         id="lesson-video"
         width="560"
@@ -25,14 +25,24 @@
         allowfullscreen
     ></iframe>
 
-    <!-- 🔒 Locked Quiz Button initially -->
+    <!-- Locked Quiz Button initially -->
     <div style="margin-top: 20px;">
         <button id="quiz-button" disabled style="opacity: 0.6; cursor: not-allowed;">
             🔒 Quiz Locked – Watch full video
         </button>
     </div>
 
-    <!-- ✅ YouTube Iframe API + Unlock Logic -->
+    {% if next_lesson and lesson.id in completed_lesson_ids %}
+    <div style="margin-top: 20px;">
+        <a href="{% url 'courses:lesson-detail' next_lesson.id %}">
+            <button style="padding: 10px 20px; background-color: #2196F3; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                ▶️ Next Lesson: {{ next_lesson.title }}
+            </button>
+        </a>
+    </div>
+    {% endif %}
+
+    <!-- YouTube Iframe API + Unlock Logic -->
     <script>
         // Load YouTube Iframe API
         const tag = document.createElement('script');
@@ -52,14 +62,14 @@
         function onPlayerStateChange(event) {
             // 0 means video ended
             if (event.data === 0) {
-                var button = document.getElementById("quiz-button");
+                const button = document.getElementById("quiz-button");
                 button.disabled = false;
                 button.style.opacity = 1;
                 button.style.cursor = "pointer";
 
-                // ✅ Update button to act as link
+                // Update button to act as link once unlocked
                 button.addEventListener('click', function () {
-                    window.location.href = "{% url 'quiz_view' lesson.id %}";
+                    window.location.href = "{% url 'courses:quiz' lesson.id %}";
                 });
             }
         }

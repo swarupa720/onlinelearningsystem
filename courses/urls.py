@@ -1,10 +1,12 @@
 from django.urls import path
-from . import views  # Import views from this app
+from . import views
+
+app_name = 'courses'
 
 urlpatterns = [
-    # Temporary home page
-    path('', views.home, name='courses-home'),
+    path('', views.course_list, name='course-list'),
+    path('course/<int:course_id>/', views.course_detail, name='course-detail'),
     path('lesson/<int:lesson_id>/', views.lesson_detail, name='lesson-detail'),
-    path('lesson/<int:lesson_id>/quiz/', views.quiz_view, name='quiz_view'),
-    path('lesson/<int:lesson_id>/quiz/submit/', views.quiz_submit, name='quiz_submit'),
+    path('lesson/<int:lesson_id>/quiz/', views.quiz_view, name='quiz'),
+    path('lesson/<int:lesson_id>/quiz/submit/', views.quiz_submit, name='quiz-submit'),
 ]
