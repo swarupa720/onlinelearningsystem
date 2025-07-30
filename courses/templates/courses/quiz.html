@@ -1,12 +1,62 @@
-<form method="POST" action="{% url 'quiz_submit' lesson.id %}">
-    {% csrf_token %}
-    {% for question in questions %}
-        <p><strong>{{ question.question_text }}</strong></p>
-        <label><input type="radio" name="q{{ question.id }}" value="A"> {{ question.option_a }}</label><br>
-        <label><input type="radio" name="q{{ question.id }}" value="B"> {{ question.option_b }}</label><br>
-        <label><input type="radio" name="q{{ question.id }}" value="C"> {{ question.option_c }}</label><br>
-        <label><input type="radio" name="q{{ question.id }}" value="D"> {{ question.option_d }}</label><br>
-        <hr>
-    {% endfor %}
-    <button type="submit">Submit Quiz</button>
-</form>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{{ lesson.title }} - Quiz</title>
+</head>
+<body>
+    <h1>{{ lesson.title }}</h1>
+
+    <p>Number of questions: {{ questions|length }}</p>
+
+    <form method="POST" action="{% url 'courses:quiz-submit' lesson.id %}">
+        {% csrf_token %}
+
+        {% for question in questions %}
+            <fieldset>
+                <legend><strong>{{ question.question_text }}</strong></legend>
+                <label><input type="radio" name="q{{ question.id }}" value="A"> {{ question.option_a }}</label><br />
+                <label><input type="radio" name="q{{ question.id }}" value="B"> {{ question.option_b }}</label><br />
+                <label><input type="radio" name="q{{ question.id }}" value="C"> {{ question.option_c }}</label><br />
+                <label><input type="radio" name="q{{ question.id }}" value="D"> {{ question.option_d }}</label><br />
+            </fieldset>
+            <hr />
+        {% empty %}
+            <p>No questions available for this lesson.</p>
+        {% endfor %}
+
+        <p id="notification" style="color: red; display: none;">
+            ⚠️ Please answer all questions before submitting.
+        </p>
+        <button type="submit" disabled id="submit-btn">Submit Quiz</button>
+    </form>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const form = document.querySelector('form');
+            const submitBtn = document.getElementById('submit-btn');
+            const fieldsets = form.querySelectorAll('fieldset');
+            const notification = document.getElementById('notification');
+
+            function validateAllAnswered() {
+                let allAnswered = true;
+
+                fieldsets.forEach(fs => {
+                    const name = fs.querySelector('input[type="radio"]').name;
+                    const answered = form.querySelector(`input[name="${name}"]:checked`);
+                    if (!answered) {
+                        allAnswered = false;
+                    }
+                });
+
+                submitBtn.disabled = !allAnswered;
+                notification.style.display = allAnswered ? 'none' : 'block';
+            }
+
+            form.addEventListener('change', validateAllAnswered);
+            validateAllAnswered();
+        });
+    </script>
+</body>
+</html>

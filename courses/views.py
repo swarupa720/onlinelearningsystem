@@ -7,65 +7,69 @@ from .models import Course, Lesson, Quiz, UserProgress
 def home(request):
     return HttpResponse("Courses App Home Page")
 
-# ✅ Course Detail View – shows progress bar and lesson list
+# ✅ Course List View
+def course_list(request):
+    courses = Course.objects.all()
+    return render(request, 'courses/course_list.html', {'courses': courses})
+
+# ✅ Course Detail View – shows lessons, completed ones, and progress
 @login_required
 def course_detail(request, course_id):
     course = get_object_or_404(Course, id=course_id)
     lessons = Lesson.objects.filter(course=course)
     total_lessons = lessons.count()
 
-    completed_lessons = UserProgress.objects.filter(
+    completed_queryset = UserProgress.objects.filter(
         user=request.user,
         lesson__in=lessons,
         completed=True
-    ).count()
+    )
+    completed_count = completed_queryset.count()
+    completed_ids = list(completed_queryset.values_list('lesson_id', flat=True))
 
-    progress_percent = int((completed_lessons / total_lessons) * 100) if total_lessons > 0 else 0
+    progress_percent = int((completed_count / total_lessons) * 100) if total_lessons > 0 else 0
 
     return render(request, 'courses/course_detail.html', {
         'course': course,
         'lessons': lessons,
         'total': total_lessons,
-        'completed': completed_lessons,
+        'completed': completed_count,
+        'completed_ids': completed_ids,
         'progress_percent': progress_percent
     })
 
+# ✅ Lesson Detail View
 @login_required
 def lesson_detail(request, lesson_id):
     lesson = get_object_or_404(Lesson, id=lesson_id)
-    all_lessons = Lesson.objects.all().order_by('id')  # or filter by course if needed
-    total = all_lessons.count()
+    lessons = Lesson.objects.filter(course=lesson.course).order_by('id')
 
-    completed = UserProgress.objects.filter(user=request.user, completed=True).count()
+    lesson_ids = list(lessons.values_list('id', flat=True))
+    current_index = lesson_ids.index(lesson.id)
+    next_lesson = lessons[current_index + 1] if current_index + 1 < len(lesson_ids) else None
 
-    if total > 0:
-        progress_percent = int((completed / total) * 100)
-    else:
-        progress_percent = 0
+    total = lessons.count()
+    completed = UserProgress.objects.filter(user=request.user, lesson__in=lessons, completed=True).count()
+    progress_percent = int((completed / total) * 100) if total > 0 else 0
 
-    return render(request, 'courses/lesson_details.html', {
+    return render(request, 'courses/lesson_detail.html', {
         'lesson': lesson,
-        'progress_percent': progress_percent
+        'progress_percent': progress_percent,
+        'next_lesson': next_lesson
     })
 
-# ✅ Quiz View – only shows if lesson is marked as completed
+# ✅ Quiz View
 @login_required
 def quiz_view(request, lesson_id):
     lesson = get_object_or_404(Lesson, id=lesson_id)
-
-    # Check if the user completed the lesson
-    progress = UserProgress.objects.filter(user=request.user, lesson=lesson).first()
-    if not progress or not progress.completed:
-        return render(request, 'courses/quiz_locked.html', {'lesson': lesson})
-
-    # Load quiz questions
     questions = Quiz.objects.filter(lesson=lesson)
+
     return render(request, 'courses/quiz.html', {
         'lesson': lesson,
-        'questions': questions
+        'questions': questions,
     })
 
-# ✅ Quiz Submission View – shows score and updates progress
+# ✅ Quiz Submission View
 @login_required
 def quiz_submit(request, lesson_id):
     lesson = get_object_or_404(Lesson, id=lesson_id)
@@ -96,9 +100,18 @@ def quiz_submit(request, lesson_id):
             defaults={'completed': True}
         )
 
+        # ✅ Find next lesson
+        lessons = Lesson.objects.filter(course=lesson.course).order_by('id')
+        lesson_ids = list(lessons.values_list('id', flat=True))
+        current_index = lesson_ids.index(lesson.id)
+        next_lesson = lessons[current_index + 1] if current_index + 1 < len(lesson_ids) else None
+
         return render(request, 'courses/quiz_result.html', {
             'lesson': lesson,
             'score': score,
             'total': questions.count(),
-            'results': results
+            'results': results,
+            'next_lesson': next_lesson
         })
+
+    return HttpResponse("Invalid request method", status=400)
