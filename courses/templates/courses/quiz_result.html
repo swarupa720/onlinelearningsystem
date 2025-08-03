@@ -4,34 +4,103 @@
 <head>
     <meta charset="UTF-8">
     <title>Quiz Results - {{ lesson.title }}</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #f4f6f8;
+            margin: 0;
+            padding: 40px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .score {
+            font-size: 20px;
+            margin-bottom: 20px;
+            color: #007bff;
+        }
+
+        .question-block {
+            margin-bottom: 25px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-left: 5px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .question-block p {
+            margin: 5px 0;
+        }
+
+        .correct {
+            color: green;
+            font-weight: bold;
+        }
+
+        .wrong {
+            color: red;
+            font-weight: bold;
+        }
+
+        .next-button {
+            margin-top: 30px;
+            display: inline-block;
+            padding: 12px 24px;
+            background-color: #28a745;
+            color: white;
+            text-decoration: none;
+            font-size: 16px;
+            border-radius: 6px;
+            transition: background-color 0.2s;
+        }
+
+        .next-button:hover {
+            background-color: #218838;
+        }
+
+        hr {
+            border: none;
+            border-top: 1px solid #ddd;
+            margin: 20px 0;
+        }
+    </style>
 </head>
 <body>
-    <h2>Quiz Results: {{ lesson.title }}</h2>
-    <p><strong>Score: {{ score }} / {{ total }}</strong></p>
-    <hr>
+    <div class="container">
+        <h2>Quiz Results: {{ lesson.title }}</h2>
+        <p class="score"><strong>Score:</strong> {{ score }} / {{ total }}</p>
 
-    {% for result in results %}
-        <p><strong>{{ result.question }}</strong></p>
-        <p>Your Answer: {{ result.selected|default:"Not answered" }}</p>
-        <p>Correct Answer: {{ result.correct }}</p>
+        {% for result in results %}
+            <div class="question-block">
+                <p><strong>Q:</strong> {{ result.question }}</p>
+                <p><strong>Your Answer:</strong> {{ result.selected|default:"Not answered" }}</p>
+                <p><strong>Correct Answer:</strong> {{ result.correct }}</p>
 
-        {% if result.is_correct %}
-            <p style="color: green;">✅ Correct</p>
-        {% else %}
-            <p style="color: red;">❌ Wrong</p>
-        {% endif %}
-        <hr>
-    {% endfor %}
+                {% if result.is_correct %}
+                    <p class="correct">✅ Correct</p>
+                {% else %}
+                    <p class="wrong">❌ Wrong</p>
+                {% endif %}
+            </div>
+        {% endfor %}
 
-    <!-- ✅ Next Lesson Button -->
-    {% if next_lesson %}
-        <div style="margin-top: 30px;">
-            <a href="{% url 'courses:lesson-detail' next_lesson.id %}">
-                <button style="padding: 12px 24px; background-color: #4CAF50; color: white; border: none; border-radius: 5px; font-size: 16px; cursor: pointer;">
-                    ▶️ Continue to Next Lesson: {{ next_lesson.title }}
-                </button>
+        {% if next_lesson %}
+            <a href="{% url 'courses:lesson-detail' next_lesson.id %}" class="next-button">
+                ▶️ Continue to Next Lesson: {{ next_lesson.title }}
             </a>
-        </div>
-    {% endif %}
+        {% endif %}
+    </div>
 </body>
 </html>

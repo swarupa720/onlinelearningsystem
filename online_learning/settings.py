@@ -40,6 +40,8 @@ INSTALLED_APPS = [
     'users',
     'courses',
 ]
+AUTH_USER_MODEL = 'users.CustomUser'
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -122,3 +124,6 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+LOGIN_REDIRECT_URL = '/users/dashboard/'
+LOGOUT_REDIRECT_URL = '/users/login/'
+LOGIN_URL = '/users/login/'

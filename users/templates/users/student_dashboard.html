@@ -1,0 +1,56 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Student Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">LearningSystem</a>
+            <div class="ms-auto text-white d-flex align-items-center">
+                Welcome, {{ request.user.username }} (Student)
+
+                <!-- ✅ POST logout form -->
+                <form method="POST" action="{% url 'logout' %}" class="ms-3">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-light">Logout</button>
+                </form>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Dashboard Content -->
+    <div class="container mt-4">
+        <h2 class="mb-4">Your Dashboard</h2>
+        <div class="row g-4">
+            <!-- Enrolled Courses -->
+            <div class="col-md-6">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">Enrolled Courses</h5>
+                        <p class="card-text">View and continue your enrolled courses.</p>
+                        <a href="{% url 'courses:course-list' %}" class="btn btn-primary">View Courses</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Progress -->
+            <div class="col-md-6">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">Your Progress</h5>
+                        <p class="card-text">Track lessons and quiz progress.</p>
+                        <a href="{% url 'courses:progress' %}" class="btn btn-primary">View Progress</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

@@ -1,4 +1,57 @@
 <!-- templates/courses/quiz_locked.html -->
-<h2>🔒 Quiz Locked</h2>
-<p>You must complete the lesson video before attempting this quiz.</p>
-<a href="{% url 'lesson-detail' lesson.id %}">⬅️ Go back to lesson</a>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Quiz Locked</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: auto;
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            color: #ff4444;
+            font-size: 28px;
+            margin-bottom: 20px;
+        }
+
+        p {
+            font-size: 18px;
+            margin-bottom: 30px;
+        }
+
+        a {
+            display: inline-block;
+            padding: 12px 24px;
+            background-color: #007bff;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background-color 0.2s ease-in-out;
+        }
+
+        a:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>🔒 Quiz Locked</h2>
+        <p>You must complete the lesson video before attempting this quiz.</p>
+        <a href="{% url 'courses:lesson-detail' lesson.id %}">⬅️ Go back to lesson</a>
+    </div>
+</body>
+</html>

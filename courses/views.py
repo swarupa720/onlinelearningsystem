@@ -1,7 +1,11 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 from .models import Course, Lesson, Quiz, UserProgress
+from .forms import LessonUploadForm
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
 
 # Optional Home View
 def home(request):
@@ -12,7 +16,7 @@ def course_list(request):
     courses = Course.objects.all()
     return render(request, 'courses/course_list.html', {'courses': courses})
 
-# ✅ Course Detail View – shows lessons, completed ones, and progress
+# ✅ Course Detail View
 @login_required
 def course_detail(request, course_id):
     course = get_object_or_404(Course, id=course_id)
@@ -93,14 +97,12 @@ def quiz_submit(request, lesson_id):
                 'is_correct': is_correct,
             })
 
-        # ✅ Mark lesson as completed
         UserProgress.objects.update_or_create(
             user=request.user,
             lesson=lesson,
             defaults={'completed': True}
         )
 
-        # ✅ Find next lesson
         lessons = Lesson.objects.filter(course=lesson.course).order_by('id')
         lesson_ids = list(lessons.values_list('id', flat=True))
         current_index = lesson_ids.index(lesson.id)
@@ -115,3 +117,28 @@ def quiz_submit(request, lesson_id):
         })
 
     return HttpResponse("Invalid request method", status=400)
+
+# ✅ Student Progress View
+@login_required
+def progress(request):
+    progress_data = UserProgress.objects.filter(user=request.user)
+    return render(request, 'courses/progress.html', {'progress_data': progress_data})
+
+# ✅ Faculty Courses View
+@login_required
+def my_courses(request):
+    courses = Course.objects.all()
+    return render(request, 'courses/my_courses.html', {'courses': courses})
+
+# ✅ Faculty Upload Lesson View
+@login_required
+def upload_lesson(request):
+    if request.method == 'POST':
+        form = LessonUploadForm(request.POST)
+        if form.is_valid():
+            lesson = form.save(commit=False)
+            lesson.save()
+            return redirect('courses:my_courses')
+    else:
+        form = LessonUploadForm()
+    return render(request, 'courses/upload_lesson.html', {'form': form})

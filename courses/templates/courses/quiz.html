@@ -4,33 +4,115 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{{ lesson.title }} - Quiz</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #f7f9fc;
+            margin: 0;
+            padding: 40px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        p {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #666;
+        }
+
+        fieldset {
+            border: none;
+            background-color: #f1f1f1;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
+
+        legend {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        label {
+            display: block;
+            margin: 8px 0;
+        }
+
+        .submit-section {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        #submit-btn {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        #submit-btn:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        #notification {
+            color: red;
+            font-weight: bold;
+            text-align: center;
+            display: none;
+            margin-bottom: 15px;
+        }
+
+        hr {
+            border: none;
+            border-top: 1px solid #ddd;
+        }
+    </style>
 </head>
 <body>
-    <h1>{{ lesson.title }}</h1>
+    <div class="container">
+        <h1>{{ lesson.title }}</h1>
+        <p>📋 Number of Questions: {{ questions|length }}</p>
 
-    <p>Number of questions: {{ questions|length }}</p>
+        <form method="POST" action="{% url 'courses:quiz-submit' lesson.id %}">
+            {% csrf_token %}
 
-    <form method="POST" action="{% url 'courses:quiz-submit' lesson.id %}">
-        {% csrf_token %}
+            {% for question in questions %}
+                <fieldset>
+                    <legend>{{ question.question_text }}</legend>
+                    <label><input type="radio" name="q{{ question.id }}" value="A"> {{ question.option_a }}</label>
+                    <label><input type="radio" name="q{{ question.id }}" value="B"> {{ question.option_b }}</label>
+                    <label><input type="radio" name="q{{ question.id }}" value="C"> {{ question.option_c }}</label>
+                    <label><input type="radio" name="q{{ question.id }}" value="D"> {{ question.option_d }}</label>
+                </fieldset>
+            {% empty %}
+                <p>No questions available for this lesson.</p>
+            {% endfor %}
 
-        {% for question in questions %}
-            <fieldset>
-                <legend><strong>{{ question.question_text }}</strong></legend>
-                <label><input type="radio" name="q{{ question.id }}" value="A"> {{ question.option_a }}</label><br />
-                <label><input type="radio" name="q{{ question.id }}" value="B"> {{ question.option_b }}</label><br />
-                <label><input type="radio" name="q{{ question.id }}" value="C"> {{ question.option_c }}</label><br />
-                <label><input type="radio" name="q{{ question.id }}" value="D"> {{ question.option_d }}</label><br />
-            </fieldset>
-            <hr />
-        {% empty %}
-            <p>No questions available for this lesson.</p>
-        {% endfor %}
+            <p id="notification">⚠️ Please answer all questions before submitting.</p>
 
-        <p id="notification" style="color: red; display: none;">
-            ⚠️ Please answer all questions before submitting.
-        </p>
-        <button type="submit" disabled id="submit-btn">Submit Quiz</button>
-    </form>
+            <div class="submit-section">
+                <button type="submit" disabled id="submit-btn">Submit Quiz</button>
+            </div>
+        </form>
+    </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {

@@ -1,78 +1,94 @@
 {% load custom_tags %}
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
     <title>{{ lesson.title }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .progress-container {
+            margin-bottom: 20px;
+        }
+        .quiz-locked {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+    </style>
 </head>
-<body>
-    <h2>{{ lesson.title }}</h2>
+<body class="bg-light">
+
+<div class="container py-5">
+    <h2 class="mb-4 text-primary">{{ lesson.title }}</h2>
 
     <!-- Progress Bar -->
-    <div style="margin-bottom: 20px;">
-        <label><strong>Course Progress:</strong> {{ progress_percent }}%</label>
-        <div style="width: 100%; background-color: #e0e0e0; height: 20px; border-radius: 10px;">
-            <div style="width: {{ progress_percent }}%; background-color: #4CAF50; height: 100%; border-radius: 10px;"></div>
+    <div class="progress-container">
+        <label class="form-label fw-bold">Course Progress: {{ progress_percent }}%</label>
+        <div class="progress">
+            <div class="progress-bar bg-success" role="progressbar"
+                 style="width: {{ progress_percent }}%;" aria-valuenow="{{ progress_percent }}"
+                 aria-valuemin="0" aria-valuemax="100">
+                {{ progress_percent }}%
+            </div>
         </div>
     </div>
 
     <!-- Embedded YouTube Video -->
-    <iframe
-        id="lesson-video"
-        width="560"
-        height="315"
-        src="{{ lesson.video_url|youtube_embed }}?enablejsapi=1"
-        frameborder="0"
-        allowfullscreen
-    ></iframe>
+    <div class="ratio ratio-16x9 mb-4">
+        <iframe
+            id="lesson-video"
+            src="{{ lesson.video_url|youtube_embed }}?enablejsapi=1"
+            title="Lesson Video"
+            allowfullscreen>
+        </iframe>
+    </div>
 
-    <!-- Locked Quiz Button initially -->
-    <div style="margin-top: 20px;">
-        <button id="quiz-button" disabled style="opacity: 0.6; cursor: not-allowed;">
+    <!-- Locked Quiz Button -->
+    <div class="text-center">
+        <button id="quiz-button" class="btn btn-secondary quiz-locked" disabled>
             🔒 Quiz Locked – Watch full video
         </button>
     </div>
 
+    <!-- Next Lesson Button (if current lesson is completed) -->
     {% if next_lesson and lesson.id in completed_lesson_ids %}
-    <div style="margin-top: 20px;">
-        <a href="{% url 'courses:lesson-detail' next_lesson.id %}">
-            <button style="padding: 10px 20px; background-color: #2196F3; color: white; border: none; border-radius: 5px; cursor: pointer;">
+        <div class="text-center mt-4">
+            <a href="{% url 'courses:lesson-detail' next_lesson.id %}" class="btn btn-primary">
                 ▶️ Next Lesson: {{ next_lesson.title }}
-            </button>
-        </a>
-    </div>
+            </a>
+        </div>
     {% endif %}
+</div>
 
-    <!-- YouTube Iframe API + Unlock Logic -->
-    <script>
-        // Load YouTube Iframe API
-        const tag = document.createElement('script');
-        tag.src = "https://www.youtube.com/iframe_api";
-        document.body.appendChild(tag);
+<!-- YouTube API Logic -->
+<script>
+    const tag = document.createElement('script');
+    tag.src = "https://www.youtube.com/iframe_api";
+    document.body.appendChild(tag);
 
-        let player;
+    let player;
 
-        function onYouTubeIframeAPIReady() {
-            player = new YT.Player('lesson-video', {
-                events: {
-                    'onStateChange': onPlayerStateChange
-                }
+    function onYouTubeIframeAPIReady() {
+        player = new YT.Player('lesson-video', {
+            events: {
+                'onStateChange': onPlayerStateChange
+            }
+        });
+    }
+
+    function onPlayerStateChange(event) {
+        if (event.data === 0) {
+            const button = document.getElementById("quiz-button");
+            button.disabled = false;
+            button.classList.remove('quiz-locked');
+            button.classList.replace('btn-secondary', 'btn-success');
+            button.innerText = "📝 Take Quiz";
+
+            button.addEventListener('click', function () {
+                window.location.href = "{% url 'courses:quiz' lesson.id %}";
             });
         }
+    }
+</script>
 
-        function onPlayerStateChange(event) {
-            // 0 means video ended
-            if (event.data === 0) {
-                const button = document.getElementById("quiz-button");
-                button.disabled = false;
-                button.style.opacity = 1;
-                button.style.cursor = "pointer";
-
-                // Update button to act as link once unlocked
-                button.addEventListener('click', function () {
-                    window.location.href = "{% url 'courses:quiz' lesson.id %}";
-                });
-            }
-        }
-    </script>
 </body>
 </html>
