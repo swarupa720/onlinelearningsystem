@@ -2,7 +2,8 @@
 
 This is a web application that allows users to register, login, and manage their personal details, including changing their name and password. The application follows the given use cases and handles error scenarios. It is implemented using Node.js, ReactJS, and MongoDB.
 
-
+## Home page
+![Home page](https://github-production-user-asset-6210df.s3.amazonaws.com/108184610/245683772-9371df94-731a-4bd8-a3d0-143c70df3ecc.png)
 ## Sign up page
 ![Sign up Page](https://github-production-user-asset-6210df.s3.amazonaws.com/108184610/245683795-a0b660c9-3a81-429d-b6b2-a577268d6bd7.png)
 ## Login page
@@ -55,6 +56,11 @@ Check out the live demo of the website: [User-registration Website](https://user
 
 Contributions are welcome! If you have any suggestions, bug reports, or feature requests, please open an issue or submit a pull request.
 
+## Contact
 
+For more information or questions, feel free to reach out:
 
+- Email: somnathkar2023@gmail.com
+- LinkedIn: [Somnath Kar](https://www.linkedin.com/in/somnath-kar-aa73aa1a3)
+- GitHub: [SomnathKar000](https://github.com/SomnathKar000)
 
