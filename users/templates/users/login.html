@@ -3,7 +3,7 @@
 <html>
 <head>
     <title>Login</title>
-    <!-- ✅ Bootstrap 5 for styling -->
+    <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body class="bg-light">
@@ -14,17 +14,17 @@
             <div class="card shadow p-4 border-0">
                 <h2 class="text-center mb-4">🔐 Login</h2>
 
-                <!-- ✅ Messages (for logout or registration) -->
+                <!-- Display Django messages -->
                 {% if messages %}
                     {% for message in messages %}
-                        <div class="alert alert-success text-center py-2" role="alert">
+                        <div class="alert alert-{{ message.tags }} text-center py-2 mb-3" role="alert">
                             {{ message }}
                         </div>
                     {% endfor %}
                 {% endif %}
 
-                <!-- ✅ Login Form -->
-                <form method="POST">
+                <!-- Login Form -->
+                <form method="POST" novalidate>
                     {% csrf_token %}
 
                     {% if form.non_field_errors %}
@@ -46,26 +46,18 @@
                     <button type="submit" class="btn btn-primary w-100">Login</button>
                 </form>
 
-                <!-- ✅ Register Link -->
+                <!-- Register link -->
                 <p class="mt-3 text-center">
                     Don't have an account?
-                    <a href="{% url 'register' %}">Register here</a>
+                    <a href="{% url 'users:register' %}">Register here</a>
                 </p>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Optional Bootstrap JS -->
+<!-- Bootstrap 5 JS Bundle -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-{% if messages %}
-  <div class="container mt-3">
-    {% for message in messages %}
-      <div class="alert alert-success">{{ message }}</div>
-    {% endfor %}
-  </div>
-{% endif %}
-
 
 </body>
 </html>

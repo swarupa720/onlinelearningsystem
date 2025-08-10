@@ -15,7 +15,7 @@
             <div class="ms-auto text-white d-flex align-items-center">
                 Welcome, {{ request.user.username }} (Student)
 
-                <!-- ✅ POST logout form -->
+                <!-- POST logout form -->
                 <form method="POST" action="{% url 'logout' %}" class="ms-3">
                     {% csrf_token %}
                     <button type="submit" class="btn btn-sm btn-light">Logout</button>
@@ -34,7 +34,7 @@
                     <div class="card-body">
                         <h5 class="card-title">Enrolled Courses</h5>
                         <p class="card-text">View and continue your enrolled courses.</p>
-                        <a href="{% url 'courses:course-list' %}" class="btn btn-primary">View Courses</a>
+                        <a href="{% url 'courses:course_list' %}" class="btn btn-primary">View Courses</a>
                     </div>
                 </div>
             </div>

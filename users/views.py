@@ -1,51 +1,75 @@
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth.views import LogoutView
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
+from django.contrib.auth.views import LogoutView
 from django.urls import reverse_lazy
+from django.views import View  # ✅ Import View
+from django.contrib.auth import logout  # ✅ Import logout
 
 from .forms import UserRegisterForm
+from courses.models import Course, Lesson  # Import Course & Lesson models
 
-# Home view (optional)
+
+# ---------- Role Check Helpers ----------
+def is_student(user):
+    return getattr(user, 'role', None) == 'student'
+
+def is_faculty(user):
+    return getattr(user, 'role', None) == 'faculty'
+
+
+# ---------- Home ----------
 def home(request):
     return HttpResponse("Users App Home Page")
 
-# Register view
+
+# ---------- Registration ----------
 def register(request):
     if request.method == 'POST':
         form = UserRegisterForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect('login')  # Redirects to login after successful registration
+            messages.success(request, "✅ Registration successful! Please log in.")
+            return redirect('login')
     else:
         form = UserRegisterForm()
     return render(request, 'users/register.html', {'form': form})
 
-# Dashboard view to redirect based on user role
+
+# ---------- Dashboard Redirect ----------
 @login_required
 def dashboard(request):
     if request.user.role == 'student':
-        return redirect('student_dashboard')
+        return redirect('users:student_dashboard')
     elif request.user.role == 'faculty':
-        return redirect('faculty_dashboard')
-    else:
-        return HttpResponse("Invalid user role")
+        return redirect('users:faculty_dashboard')
+    return HttpResponse("Invalid user role")
 
-# Student dashboard
+
+# ---------- Student Dashboard ----------
 @login_required
+@user_passes_test(is_student)
 def student_dashboard(request):
     return render(request, 'users/student_dashboard.html')
 
-# Faculty dashboard
+
+# ---------- Faculty Dashboard ----------
 @login_required
+@user_passes_test(is_faculty)
 def faculty_dashboard(request):
-    return render(request, 'users/faculty_dashboard.html')
+    my_courses = (
+        Course.objects
+        .filter(created_by=request.user)
+        .prefetch_related('lesson_set')
+    )
+    for course in my_courses:
+        course.lessons = course.lesson_set.all().order_by('id')
+    return render(request, 'users/faculty_dashboard.html', {'my_courses': my_courses})
 
 
-class CustomLogoutView(LogoutView):
-    next_page = reverse_lazy('login')  # redirect after logout
-
-    def dispatch(self, request, *args, **kwargs):
-        messages.success(request, "✅ You have been successfully logged out.")
-        return super().dispatch(request, *args, **kwargs)
+class CustomLogoutView(View):
+    def post(self, request):
+        logout(request)
+        messages.success(request, "✅ You have successfully logged out.")
+        return redirect('login')

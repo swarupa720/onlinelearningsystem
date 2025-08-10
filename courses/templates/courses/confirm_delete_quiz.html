@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>Confirm Delete Quiz Question</h2>
+  <p>Are you sure you want to delete this quiz question?</p>
+
+  <form method="post">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">Yes, Delete</button>
+    <a href="{% url 'courses:lesson-detail' quiz.lesson.id %}" class="btn btn-secondary ms-2">Cancel</a>
+  </form>
+{% endblock %}

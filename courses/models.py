@@ -1,10 +1,13 @@
 from django.db import models
-from django.conf import settings  # ✅ Use this for custom user models
+from django.conf import settings  # For referencing the custom user model
 
 
 class Course(models.Model):
     title = models.CharField(max_length=100)
     description = models.TextField()
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE
+    )  # ✅ Added this line
 
     def __str__(self):
         return self.title
@@ -21,7 +24,7 @@ class Lesson(models.Model):
 
 
 class UserProgress(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)  # ✅ custom user
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE)
     completed = models.BooleanField(default=False)
 
@@ -47,7 +50,7 @@ class Quiz(models.Model):
 
 
 class CompletedQuiz(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)  # ✅ custom user
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE)
     completed_at = models.DateTimeField(auto_now_add=True)
 
