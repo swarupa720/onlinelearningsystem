@@ -5,6 +5,7 @@ from django.contrib.auth import get_user_model, logout
 from django.contrib import messages
 from .models import Course, Lesson, Quiz, UserProgress, Enrollment  # ✅ Added Enrollment model
 from .forms import LessonUploadForm, CourseForm, QuizForm
+from courses.utils import has_completed_course, generate_certificate
 
 
 User = get_user_model()
@@ -88,20 +89,37 @@ def my_courses(request):
     })
 
 
-@login_required
-@user_passes_test(is_student)
-def course_detail(request, course_id):
-    """Course detail page with enrollment status."""
-    course = get_object_or_404(Course, id=course_id)
 
-    is_enrolled = Enrollment.objects.filter(
-        student=request.user,
-        course=course
-    ).exists()
+@login_required
+def course_detail(request, course_id):
+    course = get_object_or_404(Course, id=course_id)
+    lessons = Lesson.objects.filter(course=course)
+    total_lessons = lessons.count()
+
+    completed_queryset = UserProgress.objects.filter(
+        user=request.user,
+        lesson__in=lessons,
+        completed=True
+    )
+    completed_count = completed_queryset.count()
+    completed_ids = list(completed_queryset.values_list('lesson_id', flat=True))
+
+    progress_percent = int((completed_count / total_lessons) * 100) if total_lessons else 0
+
+    is_enrolled = Enrollment.objects.filter(student=request.user, course=course).exists()
+
+    # CALL has_completed_course here and pass the result to template
+    course_completed = has_completed_course(request.user, course)
 
     return render(request, 'courses/course_detail.html', {
         'course': course,
-        'is_enrolled': is_enrolled
+        'lessons': lessons,
+        'total': total_lessons,
+        'completed': completed_count,
+        'completed_ids': completed_ids,
+        'progress_percent': progress_percent,
+        'is_enrolled': is_enrolled,
+        'course_completed': course_completed,  # <-- Pass boolean here
     })
 
 # Public / Home View
@@ -141,7 +159,6 @@ def course_list(request):
 
 @login_required
 def course_detail(request, course_id):
-    """Course details with lesson list & progress."""
     course = get_object_or_404(Course, id=course_id)
     lessons = Lesson.objects.filter(course=course)
     total_lessons = lessons.count()
@@ -156,9 +173,10 @@ def course_detail(request, course_id):
 
     progress_percent = int((completed_count / total_lessons) * 100) if total_lessons else 0
 
-    # Check if already enrolled
     is_enrolled = Enrollment.objects.filter(student=request.user, course=course).exists()
 
+    # This is important to know if user completed all lessons of the course
+    course_completed = has_completed_course(request.user, course)
 
     return render(request, 'courses/course_detail.html', {
         'course': course,
@@ -167,8 +185,10 @@ def course_detail(request, course_id):
         'completed': completed_count,
         'completed_ids': completed_ids,
         'progress_percent': progress_percent,
-        'is_enrolled': is_enrolled
+        'is_enrolled': is_enrolled,
+        'course_completed': course_completed,
     })
+
 
 
 @login_required
@@ -193,7 +213,7 @@ def enroll_course(request, course_id):
         Enrollment.objects.create(student=request.user, course=course)
         messages.success(request, f"You have successfully enrolled in {course.title}.")
 
-    return redirect('users:student-dashboard') 
+    return redirect('users:student_dashboard') 
 
 @login_required
 def lesson_detail(request, lesson_id):
@@ -421,3 +441,21 @@ def logout_view(request):
     logout(request)
     messages.success(request, "✅ You have successfully logged out.")
     return redirect('login')
+@login_required
+def download_certificate(request, course_id):
+    course = Course.objects.get(id=course_id)
+    
+    # Check if user completed the course
+    if not has_completed_course(request.user, course):
+        return HttpResponse("You have not completed this course yet.", status=403)
+    
+    # Generate the PDF certificate
+    buffer = generate_certificate(
+        student_name=request.user.full_name,
+        course_name=course.title
+    )
+    
+    # Create response
+    response = HttpResponse(buffer, content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="{course.title}_certificate.pdf"'
+    return response

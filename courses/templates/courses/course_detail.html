@@ -16,7 +16,7 @@
         <div class="ms-auto text-white d-flex align-items-center">
             Welcome, {{ request.user.username }}
 
-            <!-- ✅ POST logout form -->
+            <!-- POST logout form -->
             <form method="POST" action="{% url 'logout' %}" class="ms-3">
                 {% csrf_token %}
                 <button type="submit" class="btn btn-sm btn-light">Logout</button>
@@ -49,14 +49,21 @@
             </div>
         </div>
 
-        <!-- ✅ Enroll Button for Students -->
+        <!-- Enroll Button for Students -->
         {% if not is_enrolled and course.created_by != request.user %}
-            <form method="POST" action="{% url 'courses:enroll_course' course.id %}" class="mb-4">
+            <form method="POST" action="{% url 'courses:enroll-course' course.id %}" class="mb-4">
                 {% csrf_token %}
                 <button type="submit" class="btn btn-primary btn-lg">
                     📚 Enroll in this Course
                 </button>
             </form>
+        {% endif %}
+
+        <!-- Download Certificate Button -->
+        {% if request.user.is_authenticated and course_completed %}
+            <a href="{% url 'courses:download_certificate' course.id %}" class="btn btn-success mb-4">
+                🎓 Download Certificate
+            </a>
         {% endif %}
 
         <!-- Lesson List -->

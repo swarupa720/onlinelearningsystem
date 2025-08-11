@@ -1,15 +1,14 @@
-# Python
+# Python cache
 __pycache__/
 *.py[cod]
 *.pyo
 *.pyd
-*.pyc
 
-# Django / DB
+# SQLite database
 *.sqlite3
 db.sqlite3
 
-# Virtual environment
+# Virtual environments
 venv/
 env/
 .venv/
@@ -22,18 +21,3 @@ Thumbs.db
 
 # Logs
 *.log
-
-# Python cache
-__pycache__/
-*.py[cod]
-
-# SQLite database
-*.sqlite3
-
-# Virtual environment
-venv/
-
-# OS-specific files
-.DS_Store
-Thumbs.db
-

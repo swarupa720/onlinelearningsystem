@@ -32,4 +32,5 @@ urlpatterns = [
     # Course creation
     path('create-course/', views.create_course, name='create_course'),
     path('enroll/<int:course_id>/', views.enroll_course, name='enroll-course'),
+    path('course/<int:course_id>/certificate/', views.download_certificate, name='download_certificate'),
 ]
