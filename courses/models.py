@@ -7,7 +7,15 @@ class Course(models.Model):
     description = models.TextField()
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE
-    )  # ✅ Added this line
+    )  # Who created the course
+
+    # ManyToMany to users via Enrollment table for quick access
+    enrolled_students = models.ManyToManyField(
+        settings.AUTH_USER_MODEL,
+        through='Enrollment',
+        related_name='enrolled_courses',
+        blank=True
+    )
 
     def __str__(self):
         return self.title
@@ -59,3 +67,28 @@ class CompletedQuiz(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.lesson.title}"
+
+
+# 🔹 NEW: Enrollment model for Student Enrollment System
+class Enrollment(models.Model):
+    student = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='enrollments'
+    )
+    course = models.ForeignKey(
+        Course,
+        on_delete=models.CASCADE,
+        related_name='enrollments'
+    )
+    enrolled_on = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('student', 'course')
+        ordering = ['-enrolled_on']
+
+
+        
+
+    def __str__(self):
+        return f"{self.student.username} → {self.course.title}"

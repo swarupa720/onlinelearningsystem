@@ -49,6 +49,16 @@
             </div>
         </div>
 
+        <!-- ✅ Enroll Button for Students -->
+        {% if not is_enrolled and course.created_by != request.user %}
+            <form method="POST" action="{% url 'courses:enroll_course' course.id %}" class="mb-4">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-primary btn-lg">
+                    📚 Enroll in this Course
+                </button>
+            </form>
+        {% endif %}
+
         <!-- Lesson List -->
         <h4 class="mb-3">Lessons</h4>
         {% if lessons %}

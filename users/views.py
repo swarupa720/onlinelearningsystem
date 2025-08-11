@@ -8,7 +8,7 @@ from django.views import View  # ✅ Import View
 from django.contrib.auth import logout  # ✅ Import logout
 
 from .forms import UserRegisterForm
-from courses.models import Course, Lesson  # Import Course & Lesson models
+from courses.models import Course, Lesson, Enrollment  # Import Course & Lesson models
 
 
 # ---------- Role Check Helpers ----------
@@ -51,7 +51,13 @@ def dashboard(request):
 @login_required
 @user_passes_test(is_student)
 def student_dashboard(request):
-    return render(request, 'users/student_dashboard.html')
+    enrolled_courses = Course.objects.filter(enrollments__student=request.user)
+    available_courses = Course.objects.exclude(enrollments__student=request.user)
+
+    return render(request, 'users/student_dashboard.html', {
+        'enrolled_courses': enrolled_courses,
+        'available_courses': available_courses,
+    })
 
 
 # ---------- Faculty Dashboard ----------
