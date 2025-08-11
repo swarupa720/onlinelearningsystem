@@ -38,29 +38,6 @@
         <p class="text-muted">You haven’t uploaded any courses yet.</p>
     {% endif %}
 
-    <hr class="my-5">
-
-    <!-- Student Section -->
-    <h2 class="mb-4">🎓 My Enrolled Courses</h2>
-    {% if enrolled_courses %}
-        <div class="row g-4">
-            {% for enrollment in enrolled_courses %}
-                <div class="col-md-4">
-                    <div class="card h-100 shadow-sm">
-                        <div class="card-body">
-                            <h5 class="card-title">{{ enrollment.course.title }}</h5>
-                            <p class="card-text text-muted">{{ enrollment.course.description|truncatewords:20 }}</p>
-
-                            <a href="{% url 'courses:course-detail' enrollment.course.id %}" class="btn btn-primary btn-sm">🔍 View</a>
-                        </div>
-                    </div>
-                </div>
-            {% endfor %}
-        </div>
-    {% else %}
-        <p class="text-muted">You haven’t enrolled in any courses yet.</p>
-    {% endif %}
-
 </div>
 
 </body>

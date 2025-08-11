@@ -288,14 +288,14 @@ def progress(request):
 def faculty_dashboard(request):
     my_courses = Course.objects.filter(created_by=request.user).prefetch_related('lesson_set')
     return render(request, 'users/faculty_dashboard.html', {'my_courses': my_courses})
-
-
 @login_required
 def my_courses(request):
-    enrollments = Enrollment.objects.filter(user=request.user).select_related('course')
-    return render(request, 'courses/my_courses.html', {'enrollments': enrollments})
+    # Only courses created by the logged-in user (faculty)
+    uploaded_courses = Course.objects.filter(created_by=request.user)
 
-
+    return render(request, 'courses/my_courses.html', {
+        'uploaded_courses': uploaded_courses,
+    })
 @login_required
 def create_course(request):
     if request.method == 'POST':
