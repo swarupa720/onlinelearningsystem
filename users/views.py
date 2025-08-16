@@ -2,18 +2,17 @@ from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
-from django.contrib.auth.views import LogoutView
-from django.urls import reverse_lazy
-from django.views import View  # ✅ Import View
-from django.contrib.auth import logout  # ✅ Import logout
+from django.views import View
+from django.contrib.auth import logout
 
 from .forms import UserRegisterForm
-from courses.models import Course, Lesson, Enrollment  # Import Course & Lesson models
+from courses.models import Course, Enrollment
 
 
 # ---------- Role Check Helpers ----------
 def is_student(user):
     return getattr(user, 'role', None) == 'student'
+
 
 def is_faculty(user):
     return getattr(user, 'role', None) == 'faculty'
@@ -38,6 +37,7 @@ def register(request):
         form = UserRegisterForm()
     return render(request, 'users/register.html', {'form': form})
 
+
 # ---------- Dashboard Redirect ----------
 @login_required
 def dashboard(request):
@@ -52,8 +52,12 @@ def dashboard(request):
 @login_required
 @user_passes_test(is_student)
 def student_dashboard(request):
+    # Already enrolled courses
     enrolled_courses = Course.objects.filter(enrollments__student=request.user)
-    available_courses = Course.objects.exclude(enrollments__student=request.user)
+
+    # Courses student has NOT enrolled in yet
+    enrolled_ids = enrolled_courses.values_list('id', flat=True)
+    available_courses = Course.objects.exclude(id__in=enrolled_ids)
 
     return render(request, 'users/student_dashboard.html', {
         'enrolled_courses': enrolled_courses,
@@ -68,13 +72,12 @@ def faculty_dashboard(request):
     my_courses = (
         Course.objects
         .filter(created_by=request.user)
-        .prefetch_related('lesson_set')
+        .prefetch_related('lessons')  # Use related_name='lessons' from Lesson model
     )
-    for course in my_courses:
-        course.lessons = course.lesson_set.all().order_by('id')
     return render(request, 'users/faculty_dashboard.html', {'my_courses': my_courses})
 
 
+# ---------- Logout ----------
 class CustomLogoutView(View):
     def post(self, request):
         logout(request)

@@ -9,7 +9,8 @@
         {{ form.as_p }}
 
         <button type="submit" class="btn btn-primary">Create Course</button>
-        <a href="{% url 'courses:faculty_dashboard' %}" class="btn btn-secondary">Cancel</a>
+        <a href="{% url 'users:faculty_dashboard' %}" class="btn btn-secondary">Cancel</a>
+
     </form>
 </div>
 {% endblock %}

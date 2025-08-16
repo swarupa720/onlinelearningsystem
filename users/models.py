@@ -18,5 +18,14 @@ class CustomUser(AbstractUser):
             return f"{self.first_name} {self.last_name}".strip()
         return self.username
 
+    # Helper properties to easily check role
+    @property
+    def is_student(self):
+        return self.role == 'student'
+
+    @property
+    def is_faculty(self):
+        return self.role == 'faculty'
+
     def __str__(self):
         return self.username

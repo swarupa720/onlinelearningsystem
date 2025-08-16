@@ -2,14 +2,17 @@ from django.db import models
 from django.conf import settings  # For referencing the custom user model
 
 
+# ------------------------------
+# Course & Lesson Models
+# ------------------------------
 class Course(models.Model):
     title = models.CharField(max_length=100)
     description = models.TextField()
     created_by = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.CASCADE
-    )  # Who created the course
-
-    # ManyToMany to users via Enrollment table for quick access
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='created_courses'
+    )
     enrolled_students = models.ManyToManyField(
         settings.AUTH_USER_MODEL,
         through='Enrollment',
@@ -22,18 +25,33 @@ class Course(models.Model):
 
 
 class Lesson(models.Model):
-    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    course = models.ForeignKey(
+        Course,
+        on_delete=models.CASCADE,
+        related_name='lessons'
+    )
     title = models.CharField(max_length=100)
     content = models.TextField()
     video_url = models.URLField(blank=True, null=True)
 
     def __str__(self):
-        return self.title
+        return f"{self.title} ({self.course.title})"
 
 
+# ------------------------------
+# User Progress & Quiz Models
+# ------------------------------
 class UserProgress(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='progresses'
+    )
+    lesson = models.ForeignKey(
+        Lesson,
+        on_delete=models.CASCADE,
+        related_name='progresses'
+    )
     completed = models.BooleanField(default=False)
 
     class Meta:
@@ -45,21 +63,33 @@ class UserProgress(models.Model):
 
 
 class Quiz(models.Model):
-    lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE)
+    lesson = models.ForeignKey(
+        Lesson,
+        on_delete=models.CASCADE,
+        related_name='quizzes'
+    )
     question_text = models.CharField(max_length=255)
     option_a = models.CharField(max_length=100)
     option_b = models.CharField(max_length=100)
     option_c = models.CharField(max_length=100)
     option_d = models.CharField(max_length=100)
-    correct_option = models.CharField(max_length=1)  # A, B, C, D
+    correct_option = models.CharField(max_length=1)  # Choices: A, B, C, D
 
     def __str__(self):
         return f"Quiz for {self.lesson.title}"
 
 
 class CompletedQuiz(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='completed_quizzes'
+    )
+    lesson = models.ForeignKey(
+        Lesson,
+        on_delete=models.CASCADE,
+        related_name='completed_quizzes'
+    )
     completed_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -69,7 +99,9 @@ class CompletedQuiz(models.Model):
         return f"{self.user.username} - {self.lesson.title}"
 
 
-# 🔹 NEW: Enrollment model for Student Enrollment System
+# ------------------------------
+# Enrollment Model
+# ------------------------------
 class Enrollment(models.Model):
     student = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -86,9 +118,6 @@ class Enrollment(models.Model):
     class Meta:
         unique_together = ('student', 'course')
         ordering = ['-enrolled_on']
-
-
-        
 
     def __str__(self):
         return f"{self.student.username} → {self.course.title}"
