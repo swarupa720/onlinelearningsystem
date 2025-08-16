@@ -2,80 +2,79 @@
 {% block title %}Faculty Dashboard{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-end mb-3">
-    <!-- Logout as POST form -->
-    <form method="POST" action="{% url 'logout' %}">
-        {% csrf_token %}
-        <button type="submit" class="btn btn-danger">🚪 Logout</button>
-    </form>
-</div>
+<div class="dashboard-container">
 
-<div class="container mt-4">
-
-    <!-- 🔹 Top Bar without second logout -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="mb-0">Faculty Dashboard</h2>
-        <!-- Removed second logout button here -->
+    <!-- 🔹 Top Right Logout -->
+    <div class="d-flex justify-content-end mb-3">
+        <form method="POST" action="{% url 'logout' %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-logout">🚪 Logout</button>
+        </form>
     </div>
 
-    <!-- Quick Actions -->
-    <div class="row g-3 mb-4">
+    <!-- 🔹 Dashboard Title -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="dashboard-title">📘 Faculty Dashboard</h2>
+    </div>
+
+    <!-- 🔹 Quick Actions -->
+    <div class="row g-4 mb-5">
         <!-- Create Course -->
         <div class="col-md-3">
-            <div class="card shadow-sm h-100">
+            <div class="card dashboard-card h-100">
                 <div class="card-body">
                     <h5 class="card-title">Create Course</h5>
                     <p class="card-text">Start a new course for students.</p>
-                    <a href="{% url 'courses:create_course' %}" class="btn btn-dark w-100">Create Course</a>
+                    <a href="{% url 'courses:create_course' %}" class="btn btn-primary w-100">Create Course</a>
                 </div>
             </div>
         </div>
 
         <!-- My Courses -->
         <div class="col-md-3">
-            <div class="card shadow-sm h-100">
+            <div class="card dashboard-card h-100">
                 <div class="card-body">
                     <h5 class="card-title">My Courses</h5>
                     <p class="card-text">View or edit your courses.</p>
-                    <a href="{% url 'courses:my_courses' %}" class="btn btn-dark w-100">View My Courses</a>
+                    <a href="{% url 'courses:my_courses' %}" class="btn btn-primary w-100">View My Courses</a>
                 </div>
             </div>
         </div>
 
         <!-- Upload Lesson -->
         <div class="col-md-3">
-            <div class="card shadow-sm h-100">
+            <div class="card dashboard-card h-100">
                 <div class="card-body">
                     <h5 class="card-title">Upload Lesson</h5>
                     <p class="card-text">Add lessons to your courses.</p>
-                    <a href="{% url 'courses:upload_lesson' %}" class="btn btn-dark w-100">Upload Lesson</a>
+                    <a href="{% url 'courses:upload_lesson' %}" class="btn btn-primary w-100">Upload Lesson</a>
                 </div>
             </div>
         </div>
 
         <!-- Available Courses -->
         <div class="col-md-3">
-            <div class="card shadow-sm h-100">
+            <div class="card dashboard-card h-100">
                 <div class="card-body">
                     <h5 class="card-title">Available Courses</h5>
                     <p class="card-text">Browse courses from other faculty.</p>
-                    <a href="{% url 'courses:available_courses' %}" class="btn btn-dark w-100">View Courses</a>
+                    <a href="{% url 'courses:available_courses' %}" class="btn btn-primary w-100">View Courses</a>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- My Courses with Lessons & Quiz Option -->
-    <h4 class="mb-3">My Courses & Lessons</h4>
+    <!-- 🔹 My Courses with Lessons -->
+    <h4 class="section-title mb-3">📂 My Courses & Lessons</h4>
     {% for course in my_courses %}
-        <div class="card mb-3">
-            <div class="card-header">
+        <div class="card course-card mb-4">
+            <div class="card-header course-header">
                 <strong>{{ course.title }}</strong>
             </div>
             <div class="card-body">
                 <p>{{ course.description }}</p>
-                <a href="{% url 'courses:edit_course' course.id %}" class="btn btn-dark btn-sm">Edit</a>
-                <a href="{% url 'courses:delete_course' course.id %}" class="btn btn-danger btn-sm">Delete</a>
+                <a href="{% url 'courses:edit_course' course.id %}" class="btn btn-warning btn-sm">✏️ Edit</a>
+                <a href="{% url 'courses:delete_course' course.id %}" class="btn btn-danger btn-sm">🗑️ Delete</a>
             </div>
 
             {% if course.lessons %}
@@ -84,7 +83,7 @@
                         <li class="list-group-item d-flex justify-content-between align-items-center">
                             {{ lesson.title }}
                             <a href="{% url 'courses:add_quiz' lesson.id %}" 
-                               class="btn btn-dark btn-sm"
+                               class="btn btn-success btn-sm"
                                title="Add a quiz to this lesson">
                                ➕ Add Quiz
                             </a>
@@ -100,3 +99,4 @@
     {% endfor %}
 </div>
 {% endblock %}
+

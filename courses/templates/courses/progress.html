@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="joyful-container">
+  <h2 class="joyful-heading">Your Progress</h2>
+
+  {% if progress_data %}
+    <div class="joyful-table-container">
+      <table class="joyful-table">
+        <thead>
+          <tr>
+            <th>Course</th>
+            <th>Lesson</th>
+            <th>Watched</th>
+            <th>Quiz Score</th>
+            <th>Completed</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in progress_data %}
+          <tr>
+            <td>{{ row.course }}</td>
+            <td>{{ row.lesson }}</td>
+            <td>{{ row.watched|yesno:"Yes,No" }}</td>
+            <td>{% if row.score is not None %}{{ row.score }}{% else %}—{% endif %}</td>
+            <td>{{ row.completed|yesno:"Yes,No" }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <p class="joyful-muted">No progress yet.</p>
+  {% endif %}
+
+  <!-- Back to Dashboard button -->
+  <div class="mt-4">
+    <a href="{% url 'users:student_dashboard' %}" 
+       class="btn btn-primary"
+       style="padding: 10px 20px; border-radius: 8px; font-weight: 500; text-decoration: none;">
+       ⬅ Back to Dashboard
+    </a>
+  </div>
+</div>
+{% endblock %}
+

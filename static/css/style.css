@@ -1,0 +1,80 @@
+/* ===== Dashboard Container ===== */
+.dashboard-container {
+    background: linear-gradient(135deg, #ffecd2, #fcb69f); /* peachy gradient */
+    min-height: 100vh;
+    padding: 20px;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+/* ===== Dashboard Header ===== */
+.dashboard-header {
+    background: #ff6f61; /* coral red */
+    color: white;
+    padding: 15px 20px;
+    border-radius: 12px;
+    text-align: center;
+    font-size: 24px;
+    font-weight: bold;
+    box-shadow: 0px 4px 8px rgba(0,0,0,0.2);
+}
+
+/* ===== Sidebar ===== */
+.sidebar {
+    background: #ffd166; /* sunflower yellow */
+    padding: 20px;
+    border-radius: 12px;
+    color: #333;
+    font-weight: 600;
+    box-shadow: 0px 4px 8px rgba(0,0,0,0.1);
+}
+
+.sidebar a {
+    display: block;
+    padding: 10px;
+    margin: 8px 0;
+    text-decoration: none;
+    color: #333;
+    border-radius: 8px;
+    transition: 0.3s;
+}
+
+.sidebar a:hover {
+    background: #06d6a0; /* mint green hover */
+    color: white;
+}
+
+/* ===== Dashboard Cards ===== */
+.dashboard-card {
+    background: white;
+    border-radius: 16px;
+    padding: 20px;
+    margin: 15px;
+    box-shadow: 0px 4px 12px rgba(0,0,0,0.1);
+    transition: transform 0.2s ease;
+}
+
+.dashboard-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0px 6px 14px rgba(0,0,0,0.2);
+}
+
+/* Card Titles */
+.dashboard-card h3 {
+    color: #118ab2; /* teal blue */
+    margin-bottom: 10px;
+}
+
+/* ===== Buttons ===== */
+.btn {
+    background: #ef476f; /* raspberry pink */
+    color: white;
+    padding: 10px 18px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.btn:hover {
+    background: #06d6a0; /* mint green */
+}
