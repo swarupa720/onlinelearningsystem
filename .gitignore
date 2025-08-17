@@ -5,8 +5,9 @@ __pycache__/
 *.pyd
 
 # SQLite database
-*.sqlite3
-db.sqlite3
+# Keep the database in GitHub, so do not ignore it
+# *.sqlite3
+# db.sqlite3
 
 # Virtual environments
 venv/
@@ -21,3 +22,14 @@ Thumbs.db
 
 # Logs
 *.log
+
+# Django specific
+*.pot
+*.pyc
+*.pyo
+*.pyd
+*.log
+*.mo
+*.sqlite3-journal
+media/
+staticfiles/

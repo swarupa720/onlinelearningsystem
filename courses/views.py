@@ -189,13 +189,21 @@ def quiz_submit(request, lesson_id):
 # ------------------------
 # Progress
 # ------------------------
+@login_required
 def progress(request):
-    if request.user.is_authenticated:
-        progress_data = UserProgress.objects.filter(user=request.user)
-    else:
-        progress_data = []
+    user_progress_qs = UserProgress.objects.filter(user=request.user).select_related('lesson__course')
+    
+    progress_data = []
+    for p in user_progress_qs:
+        progress_data.append({
+            "course": p.lesson.course.title,
+            "lesson": p.lesson.title,
+            "watched": p.completed,  # Use completed as watched
+            "score": None,            # No quiz score field
+            "completed": p.completed
+        })
+    
     return render(request, "courses/progress.html", {"progress_data": progress_data})
-
 
 # ------------------------
 # Faculty: Create/Edit/Delete Course

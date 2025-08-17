@@ -1,45 +1,72 @@
 {% extends "base.html" %}
+
 {% block content %}
-<div class="joyful-container">
-  <h2 class="joyful-heading">Your Progress</h2>
+<div class="progress-container" style="max-width: 1000px; margin: 40px auto; padding: 20px;">
+  
+  <h2 style="text-align: center; font-size: 2rem; margin-bottom: 30px; color: #333;">Your Progress</h2>
 
   {% if progress_data %}
-    <div class="joyful-table-container">
-      <table class="joyful-table">
-        <thead>
+    <div class="table-wrapper" style="overflow-x: auto; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+      <table style="width: 100%; border-collapse: collapse; min-width: 700px; font-family: Arial, sans-serif;">
+        <thead style="background-color: #4f46e5; color: white;">
           <tr>
-            <th>Course</th>
-            <th>Lesson</th>
-            <th>Watched</th>
-            <th>Quiz Score</th>
-            <th>Completed</th>
+            <th scope="col" style="padding: 12px 15px; text-align: left;">Course</th>
+            <th scope="col" style="padding: 12px 15px; text-align: left;">Lesson</th>
+            <th scope="col" style="padding: 12px 15px; text-align: center;">Watched</th>
+            <th scope="col" style="padding: 12px 15px; text-align: center;">Quiz Score</th>
+            <th scope="col" style="padding: 12px 15px; text-align: center;">Completed</th>
           </tr>
         </thead>
         <tbody>
           {% for row in progress_data %}
-          <tr>
-            <td>{{ row.course }}</td>
-            <td>{{ row.lesson }}</td>
-            <td>{{ row.watched|yesno:"Yes,No" }}</td>
-            <td>{% if row.score is not None %}{{ row.score }}{% else %}—{% endif %}</td>
-            <td>{{ row.completed|yesno:"Yes,No" }}</td>
+          <tr style="border-bottom: 1px solid #ddd; transition: background 0.3s;">
+            <td style="padding: 12px 15px;">{{ row.course }}</td>
+            <td style="padding: 12px 15px;">{{ row.lesson }}</td>
+            <!-- Watched column -->
+            <td style="padding: 12px 15px; text-align: center;">
+              {% if row.watched %}
+                ✅
+              {% else %}
+                ❌
+              {% endif %}
+            </td>
+            <!-- Quiz Score column -->
+            <td style="padding: 12px 15px; text-align: center;">
+              {% if row.score != None %}
+                {{ row.score }}
+              {% else %}
+                —
+              {% endif %}
+            </td>
+            <!-- Completed column -->
+            <td style="padding: 12px 15px; text-align: center;">
+              {% if row.completed %}
+                ✅
+              {% else %}
+                ❌
+              {% endif %}
+            </td>
           </tr>
           {% endfor %}
         </tbody>
       </table>
     </div>
   {% else %}
-    <p class="joyful-muted">No progress yet.</p>
+    <p style="text-align: center; font-style: italic; color: #666; margin-top: 40px; font-size: 1.1rem;">No progress yet.</p>
   {% endif %}
 
-  <!-- Back to Dashboard button -->
-  <div class="mt-4">
+  <div style="text-align: center; margin-top: 30px;">
     <a href="{% url 'users:student_dashboard' %}" 
-       class="btn btn-primary"
-       style="padding: 10px 20px; border-radius: 8px; font-weight: 500; text-decoration: none;">
+       style="display: inline-block; background-color: #4f46e5; color: white; padding: 12px 25px; border-radius: 8px; font-weight: 500; text-decoration: none; transition: background 0.3s;">
        ⬅ Back to Dashboard
     </a>
   </div>
-</div>
-{% endblock %}
 
+</div>
+
+<style>
+  tbody tr:hover {
+    background-color: #f3f4f6;
+  }
+</style>
+{% endblock %}
