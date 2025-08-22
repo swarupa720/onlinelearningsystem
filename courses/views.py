@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponse, HttpResponseForbidden
 from django.contrib import messages
-from .models import Course, Lesson, Quiz, UserProgress, Enrollment
+from .models import Course, Lesson, Enrollment, UserProgress, Quiz
 from .forms import LessonUploadForm, CourseForm, QuizForm
 from .utils import has_completed_course, generate_certificate
 from django.contrib.auth.decorators import login_required
@@ -83,36 +83,38 @@ def course_list(request):
     return render(request, "courses/course_list.html", {"course_data": course_data})
 
 
+
 def course_detail(request, course_id):
     course = get_object_or_404(Course, id=course_id)
     lessons = Lesson.objects.filter(course=course)
-    total_lessons = lessons.count()
 
-    if request.user.is_authenticated:
-        completed_queryset = UserProgress.objects.filter(user=request.user, lesson__in=lessons, completed=True)
-        completed_count = completed_queryset.count()
-        completed_ids = list(completed_queryset.values_list("lesson_id", flat=True))
+    is_enrolled = False
+    completed_lessons = []
+    progress = 0
+
+    if request.user.is_authenticated and getattr(request.user, "is_student", False):
+        # Check if enrolled
         is_enrolled = Enrollment.objects.filter(student=request.user, course=course).exists()
-        course_completed = has_completed_course(request.user, course)
-    else:
-        completed_count = 0
-        completed_ids = []
-        is_enrolled = False
-        course_completed = False
 
-    progress_percent = int((completed_count / total_lessons) * 100) if total_lessons else 0
+        if is_enrolled:
+            completed_lessons = UserProgress.objects.filter(
+                user=request.user, lesson__course=course, completed=True
+            ).values_list("lesson_id", flat=True)
 
-    return render(request, "courses/course_detail.html", {
+            total_lessons = lessons.count()
+            completed_count = len(completed_lessons)
+
+            if total_lessons > 0:
+                progress = int((completed_count / total_lessons) * 100)
+
+    context = {
         "course": course,
         "lessons": lessons,
-        "total": total_lessons,
-        "completed": completed_count,
-        "completed_ids": completed_ids,
-        "progress_percent": progress_percent,
         "is_enrolled": is_enrolled,
-        "course_completed": course_completed,
-    })
-
+        "completed_lessons": completed_lessons,
+        "progress": progress,   # use this in template
+    }
+    return render(request, "courses/course_detail.html", context)
 
 # ------------------------
 # Lesson + Quiz
@@ -189,23 +191,53 @@ def quiz_submit(request, lesson_id):
 # ------------------------
 # Progress
 # ------------------------
-@login_required
 def progress(request):
-    user_progress_qs = UserProgress.objects.filter(user=request.user).select_related('lesson__course')
-    
-    progress_data = []
-    for p in user_progress_qs:
-        progress_data.append({
-            "course": p.lesson.course.title,
-            "lesson": p.lesson.title,
-            "watched": p.completed,  # Use completed as watched
-            "score": None,            # No quiz score field
-            "completed": p.completed
-        })
-    
-    return render(request, "courses/progress.html", {"progress_data": progress_data})
+    user = request.user
 
-# ------------------------
+    # Get all enrollments for the user
+    enrollments = Enrollment.objects.filter(student=user)
+
+    progress_data = []
+
+    for enrollment in enrollments:
+        course = enrollment.course
+        lessons = course.lessons.all()
+        total_lessons = lessons.count()
+        completed_lessons = 0
+
+        lesson_progress_list = []
+
+        for lesson in lessons:
+            try:
+                user_progress = UserProgress.objects.get(user=user, lesson=lesson)
+                completed = user_progress.completed
+            except UserProgress.DoesNotExist:
+                completed = False
+
+            if completed:
+                completed_lessons += 1
+
+            # Map 'completed' to both watched and completed in template
+            lesson_progress_list.append({
+                'lesson': lesson,
+                'watched': completed,    # we don’t have a separate watched field
+                'completed': completed,
+            })
+
+        course_progress = {
+            'course': course,
+            'total_lessons': total_lessons,
+            'completed_lessons': completed_lessons,
+            'lesson_progress_list': lesson_progress_list,
+        }
+
+        progress_data.append(course_progress)
+
+    context = {
+        'progress_data': progress_data,
+    }
+
+    return render(request, 'courses/progress.html', context)
 # Faculty: Create/Edit/Delete Course
 # ------------------------
 def my_uploaded_courses(request):

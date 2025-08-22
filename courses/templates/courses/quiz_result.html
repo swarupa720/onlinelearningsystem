@@ -54,11 +54,10 @@
             font-weight: bold;
         }
 
-        .next-button {
-            margin-top: 30px;
+        .button {
+            margin-top: 20px;
             display: inline-block;
             padding: 12px 24px;
-            background-color: #28a745;
             color: white;
             text-decoration: none;
             font-size: 16px;
@@ -66,8 +65,19 @@
             transition: background-color 0.2s;
         }
 
+        .next-button {
+            background-color: #28a745;
+        }
         .next-button:hover {
             background-color: #218838;
+        }
+
+        .dashboard-button {
+            background-color: #007bff;
+            margin-left: 10px;
+        }
+        .dashboard-button:hover {
+            background-color: #0056b3;
         }
 
         hr {
@@ -97,10 +107,21 @@
         {% endfor %}
 
         {% if next_lesson %}
-            <a href="{% url 'courses:lesson-detail' next_lesson.id %}" class="next-button">
+            <a href="{% url 'courses:lesson-detail' next_lesson.id %}" class="button next-button">
                 ▶️ Continue to Next Lesson: {{ next_lesson.title }}
             </a>
         {% endif %}
+
+   {% if user.is_authenticated %}
+    {% if user.is_student %}
+        <a href="{% url 'users:student_dashboard' %}" class="button dashboard-button">⬅ Back to Dashboard</a>
+    {% elif user.is_faculty %}
+        <a href="{% url 'users:faculty_dashboard' %}" class="button dashboard-button">⬅ Back to Dashboard</a>
+    {% endif %}
+{% else %}
+    <a href="{% url 'login' %}" class="button">Login</a>
+{% endif %}
+
     </div>
 </body>
 </html>
